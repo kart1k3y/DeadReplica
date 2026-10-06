@@ -1,0 +1,337 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #1a2a1e;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #f1f2f6;
+}
+
+#game-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+}
+
+/* Glassmorphism Common */
+.hud-panel {
+  position: absolute;
+  z-index: 10;
+  background: rgba(18, 30, 23, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  padding: 12px 18px;
+}
+
+/* Top Left: Player Status */
+.hud-status {
+  top: 20px;
+  left: 20px;
+  min-width: 240px;
+}
+
+.hud-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hud-player-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #00e5ff;
+  letter-spacing: 0.5px;
+}
+
+.hud-player-badge {
+  font-size: 12px;
+  color: #a4b0be;
+  font-weight: 600;
+}
+
+.hud-bar-container {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-bar-fill.hp-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4757, #2ed573);
+  border-radius: 6px;
+  transition: width 0.15s ease-out;
+}
+
+/* Top Right: Resources & Dev API */
+.hud-resources {
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resource-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.wood-pill { color: #55efc4; }
+.stone-pill { color: #dfe4ea; }
+.gold-pill { color: #fed330; }
+
+.resource-icon {
+  font-size: 16px;
+}
+
+.hud-btn {
+  background: linear-gradient(135deg, #0984e3, #6c5ce7);
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.35);
+}
+
+.hud-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(108, 92, 231, 0.55);
+}
+
+/* Bottom Center: Hotbar & Upgrade Bar */
+.hud-bottom-center {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+}
+
+.hud-upgrade-bar {
+  background: rgba(24, 44, 32, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 196, 15, 0.4);
+  border-radius: 30px;
+  padding: 6px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  box-shadow: 0 4px 20px rgba(241, 196, 15, 0.2);
+}
+
+.hud-upgrade-btn {
+  background: linear-gradient(135deg, #f1c40f, #e67e22);
+  color: #1e272e;
+  font-weight: 800;
+  font-size: 12px;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.hud-upgrade-btn:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.hud-hotbar {
+  display: flex;
+  gap: 8px;
+  background: rgba(14, 26, 19, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+.hotbar-slot {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hotbar-slot:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-3px);
+}
+
+.hotbar-slot.active {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: #00e5ff;
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.5);
+  transform: translateY(-6px);
+}
+
+.slot-key {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #747d8c;
+}
+
+.slot-icon {
+  font-size: 22px;
+}
+
+.slot-badge {
+  position: absolute;
+  bottom: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #a4b0be;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Developer Debug Overlay */
+.debug-overlay {
+  position: absolute;
+  top: 75px;
+  right: 20px;
+  width: 360px;
+  background: rgba(13, 20, 28, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 14px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  padding: 16px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.debug-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.debug-header h3 {
+  font-size: 14px;
+  color: #00e5ff;
+  font-weight: 700;
+}
+
+.debug-close-btn {
+  background: none;
+  border: none;
+  color: #a4b0be;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.debug-close-btn:hover {
+  color: #ffffff;
+}
+
+.debug-section {
+  margin-bottom: 14px;
+}
+
+.debug-section h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #747d8c;
+  margin-bottom: 8px;
+}
+
+.debug-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dbg-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ced6e0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dbg-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: #00e5ff;
+  color: #ffffff;
+}
+
+.dbg-gold-btn {
+  background: rgba(241, 196, 15, 0.15);
+  border-color: rgba(241, 196, 15, 0.4);
+  color: #fed330;
+}
+
+.debug-telemetry {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #a4b0be;
+}
+
+.debug-telemetry span {
+  font-weight: 700;
+  color: #00e5ff;
+}
